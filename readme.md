@@ -70,7 +70,7 @@ To check if table is created:
 
 $ \dt
 
-## connect flaskapp to the database:
+## connect app to the database:
 
     $ hostname = 'hostname'
         username = 'username'
