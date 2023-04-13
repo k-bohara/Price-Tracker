@@ -12,7 +12,7 @@ Create a copy of .env.example to .env and update according to your database setu
 
 ## Clone project
 
-    $ git clone https://github.com/sagunsh/pricedrop_au.git
+    $ git clone https://github.com/k-bohara/Price-Tracker.git
 
 ## Database
 
