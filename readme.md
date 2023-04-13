@@ -86,7 +86,7 @@ $ \dt
             INSERT INTO product (title, mark_price, sale_price, sku, description, review_count, average_rating, main_image, images, source, in_stock, scraped_timestamp)  VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         ''', (item['title'], item['mark_price'], item['sale_price'], item['sku'], item['description'], item['review_count'], item['average_rating'], item['main_image'], images, item['source'], item['in_stock'], item['scraped_timestamp']));
 
-## runing spider code to scrape data from amazon
+## runing spider code to scrape data
 
     $ scrapy crawl amazon_product -a product_url="<product_url>"
 
