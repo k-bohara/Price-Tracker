@@ -1,0 +1,10 @@
+.idea/
+__pycache__/
+.scrapy/
+venv/
+
+.env
+
+*.json
+*.csv
+.DS_Store
