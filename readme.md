@@ -88,31 +88,7 @@ $ \dt
 
 ## runing spider code to scrape data from amazon
 
-    $ scrapy crawl amazon_product -a product_url="https://www.amazon.com.au/Soundcore-Wireless-Microphones-Reduction-Waterproof/dp/B07SJR6HL3/"
-
-## to check git status:
-
-    $ git status
-
-## adding requirements.txt file to the git
-
-    $ git add requirements.txt
-
-## Add commit message for the file
-
-    $ git commit -m "added psycopg2 and updated scrapy version"
-
-## To check status and add another file
-
-    $ git add pricedrop_au/settings.py
-
-## All files can be added using single command:
-
-    $ git add .
-
-## Command to push files to the git:
-
-    $ git push
+    $ scrapy crawl amazon_product -a product_url="<product_url>"
 
 ## to check the program version:
 
@@ -121,21 +97,3 @@ $ \dt
 ## to install particular version:
 
     $ pip3 install pytz==2021.1
-
-# Issues to resolve in the project
-
-    myer - description
-
-    costco - description
-
-    amazon - https://www.amazon.com.au/GSHOCK-Automatic-analog-digital-Display-GG1000-1A5/dp/B01FFJFK3M/ref=sr_1_1?c=ts&keywords=Men%27s+Watches&qid=1680673808&refinements=p_89%3AG-Shock&s=fashion&sr=1-1&ts_id=5130767051
-
-
-     issue -  data = json.loads(re.findall("jQuery.parseJSON\('(.*?)'\);", response.text)[0])
-
-    jbhifi -   item['mark_price'] = product_json.get('price') / 100
-                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~
-                item['sale_price'] = product_json.get('price') / 100
-    thegoodguys - missing mark_price, in_stock and check images
-
-    jdsports - check all the details and issues with reviews and ratings
