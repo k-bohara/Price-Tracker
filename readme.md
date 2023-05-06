@@ -1,5 +1,6 @@
 ## Price Tracker By Kaman
-    This app tracks prices from ecommerce websites in australia like amazon, jhbhifi, costco, myer, ebay and so on.
+
+This app tracks prices from ecommerce websites in australia like amazon, jhbhifi, costco, myer, ebay and so on using scrapy and python.
 
 #### .env setup
 
