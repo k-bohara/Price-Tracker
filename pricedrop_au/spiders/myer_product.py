@@ -8,16 +8,22 @@ from ..items import ProductItem
 
 class MyerProductSpider(scrapy.Spider):
     name = 'myer_product'
-    allowed_domains = ['myer.com.au']
+    allowed_domains = ['myer.com.au', 'bazaarvoice.com']
 
-    def __init__(self, product_url, **kwargs):
-        super().__init__(**kwargs)
-        self.product_url = product_url
-
-    def start_requests(self):
-        yield Request(url=self.product_url)
+    start_urls = ["https://www.myer.com.au/c/offers/sale-all"]
 
     def parse(self, response):
+        products = response.css('div[data-automation="product"]')
+        for product in products:
+            product_url = response.urljoin(product.css(
+                'div[data-automation="product"] a::attr(href)').get())
+            yield Request(url=product_url, callback=self.parse_product)
+
+        next_link = response.css(
+            'li[data-automation="paginateNextPage"] a::attr(href)').get()
+        yield scrapy.Request(response.urljoin(next_link), callback=self.parse)
+
+    def parse_product(self, response):
         data = response.css(
             'script[data-automation="seo-product-schema"]::text').get()
         json_data = json.loads(html.unescape(data))

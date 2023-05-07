@@ -11,20 +11,39 @@ class CostcoProductSpider(scrapy.Spider):
     name = 'costco_product'
     allowed_domains = ['costco.com.au', 'bazaarvoice.com']
 
-    def __init__(self, product_url, **kwargs):
-        super().__init__(**kwargs)
-        self.product_url = product_url
+    headers = {'authority': 'www.costco.com.au',
+               'accept': 'application/json, text/plain, */*',
+               'accept-language': 'en-US,en;q=0.9',
+               'content-type': 'application/json'}
 
     def start_requests(self):
-        yield Request(url=self.product_url)
+        url = 'https://www.costco.com.au/rest/v2/australia/products/search?fields=FULL&query=&pageSize=48&category=hot-buys&lang=en_AU&curr=AUD'
+        yield scrapy.Request(url, callback=self.parse, headers=self.headers)
 
     def parse(self, response):
+        data = json.loads(response.text)
+        products = data.get('products', []) or []
+
+        for product in products:
+            product_url = response.urljoin(product['url'])
+            yield Request(url=product_url, callback=self.parse_product)
+
+        total_pages = data.get('pagination', {}).get('totalPages', 1)
+        current_page = data.get('pagination', {}).get('currentPage', 2)
+
+        if current_page < total_pages and len(products) > 0:
+            url = f'https://www.costco.com.au/rest/v2/australia/products/search?fields=FULL&query=&pageSize=48&currentPage={current_page+1}&category=hot-buys&lang=en_AU&curr=AUD'
+
+            yield scrapy.Request(url, headers=self.headers, callback=self.parse)
+
+    def parse_product(self, response):
         data = response.css('script#schemaorg_product::text').get()
         json_data = json.loads(data)
         item = ProductItem()
         item['title'] = json_data.get('name')
         item['url'] = response.url
-        item['description'] = ''.join(response.css('div.product-detail-dsc ::text').extract()).strip()
+        item['description'] = ''.join(response.css(
+            'div.product-detail-dsc ::text').extract()).strip()
         item['source'] = 'Costco'
         item['sku'] = json_data.get('sku')
         item['sale_price'] = json_data.get('offers').get('price')

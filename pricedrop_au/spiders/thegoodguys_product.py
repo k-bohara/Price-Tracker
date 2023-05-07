@@ -8,17 +8,28 @@ from ..utils import get_float_or_none, get_int_or_none
 class WatchdirectSpider(scrapy.Spider):
     name = "thegoodguys_product"
     allowed_domains = ["thegoodguys.com.au"]
-    start_urls = ["http://thegoodguys.com.au/"]
 
-    def __init__(self, product_url, **kwargs):
-        super().__init__(**kwargs)
-        self.product_url = product_url
-
-    def start_requests(self):
-        yield Request(url=self.product_url)
+    start_urls = ["https://www.thegoodguys.com.au/deals"]
 
     def parse(self, response):
-        data = response.css('script[type="application/ld+json"]::text').getall()
+        for url in response.css('div.deals_top-deals-slider__tile a::attr(href)').extract():
+            yield scrapy.Request(response.urljoin(url), callback=self.parse_cat)
+
+    def parse_cat(self, response):
+        products = response.css('div.product-tile-imagewrap')
+        for product in products:
+            product_url = product.css(
+                'a.disp-block::attr(href)').get()
+            yield Request(product_url, callback=self.parse_product)
+
+        next_page = response.css(
+            'a#WC_SearchBasedNavigationResults_pagination_link_right_categoryResults::attr(href)').get()
+        if next_page is not None:
+            yield scrapy.Request(next_page, callback=self.parse_cat)
+
+    def parse_product(self, response):
+        data = response.css(
+            'script[type="application/ld+json"]::text').getall()
         data = json.loads(data[1])
         item = ProductItem()
         item['title'] = data['name']

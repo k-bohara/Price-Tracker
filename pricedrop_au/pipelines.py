@@ -29,23 +29,25 @@ class ProcessingPipeline:
                     item[field] = item[field].replace('\xa0', ' ').strip()
 
         if 'scraped_timestamp' not in item:
-            item['scraped_timestamp'] = datetime.now(pytz.timezone('Australia/Sydney')).strftime('%Y-%m-%d %H:%M:%S')
+            item['scraped_timestamp'] = datetime.now(pytz.timezone(
+                'Australia/Sydney')).strftime('%Y-%m-%d %H:%M:%S')
 
         return item
 
 
 class PostgresPipeline:
-    def __init__(self):
+
+    def process_item(self, item, spider):
         hostname = os.getenv('hostname')
         username = os.getenv('username')
         password = os.getenv('password')
         database = os.getenv('database')
 
-        self.connection = psycopg2.connect(host=hostname, user=username, password=password, dbname=database)
-        self.cur = self.connection.cursor()
+        connection = psycopg2.connect(
+            host=hostname, user=username, password=password, dbname=database)
+        cur = connection.cursor()
 
-    def process_item(self, item, spider):
-        fields = ['title', 'mark_price', 'sale_price', 'sku', 'description', 'review_count', 'average_rating',
+        fields = ['title', 'mark_price', 'sale_price', 'url', 'sku', 'description', 'review_count', 'average_rating',
                   'main_image', 'images', 'source', 'in_stock', 'scraped_timestamp']
 
         for field in fields:
@@ -54,7 +56,7 @@ class PostgresPipeline:
 
         images = ' || '.join(item['images'])
 
-        self.cur.execute('''
+        cur.execute('''
             INSERT INTO product (title, mark_price, sale_price, sku, description, review_count, average_rating, main_image, images, source, in_stock, scraped_timestamp)  VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         ''', (
             item['title'], item['mark_price'], item['sale_price'], item['sku'], item['description'],
@@ -62,10 +64,7 @@ class PostgresPipeline:
             item['average_rating'], item['main_image'], images, item['source'], item['in_stock'],
             item['scraped_timestamp']))
 
-        ## Execute insert of data into database
-        self.connection.commit()
+        # Execute insert of data into database
+        connection.commit()
+        connection.close()
         return item
-
-    def close_spider(self, spider):
-        self.cur.close()
-        self.connection.close()
